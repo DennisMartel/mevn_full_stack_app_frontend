@@ -1,28 +1,41 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
+import { routesConfig } from '@/common/routesConfig';
 
 const routes = [
   {
-    path: '/',
+    path: routesConfig.HOME,
     name: 'home',
-    component: () => import(/* webpackChunkName: "home" */ "../views/HomeView.vue")
+    component: () => import(/* webpackChunkName: "home" */ "@/views/HomeView.vue")
   },
   {
-    path: '/add-post',
+    path: routesConfig.ADD_POST,
     name: 'addPost',
-    component: () => import(/* webpackChunkName: "new-post" */ "../views/AddPostView.vue")
+    component: () => import(/* webpackChunkName: "newpost" */ "@/views/AddPostView.vue")
   },
   {
     path: '/post/:id',
     name: 'post',
-    component: () => import(/* webpackChunkName: "post" */ "../views/PostView.vue")
+    component: () => import(/* webpackChunkName: "post" */ "@/views/PostView.vue")
   },
   {
-    path: '/about',
+    path: routesConfig.SIGNIN,
+    name: 'signin',
+    component: () => import(/* webpackChunkName: "signin" */ "@/views/SigninView.vue")
+  },
+  {
+    path: routesConfig.SIGNUP,
+    name: 'signup',
+    component: () => import(/* webpackChunkName: "signup" */ "@/views/SignupView.vue")
+  },
+  {
+    path: routesConfig.ABOUT,
     name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    component: () => import(/* webpackChunkName: "about" */ '@/views/AboutView.vue')
+  },
+  {
+    path: routesConfig.NOT_FOUND,
+    name: 'PageNotfound',
+    component: () => import(/* webpackChunkName: "notfound" */ '@/views/NotFoundView.vue')
   }
 ]
 
@@ -30,5 +43,18 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const { HOME, SIGNIN, SIGNUP, ABOUT } = routesConfig;
+  const publicPages = [HOME, SIGNIN, SIGNUP, ABOUT];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem("access_token");
+
+  if (authRequired && !loggedIn) {
+    next(routesConfig.SIGNIN);
+  }
+  
+  next()
+});
 
 export default router
