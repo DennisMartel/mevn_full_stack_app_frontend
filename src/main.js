@@ -1,14 +1,19 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import VueCookies from 'vue-cookies'
 import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import store from "./store";
+import setupInterceptor from './common/setupInterceptor'
 
 loadFonts()
+
+setupInterceptor(store);
 
 createApp(App)
   .use(router)
   .use(vuetify)
   .use(store)
+  .use(VueCookies)
   .mount('#app')

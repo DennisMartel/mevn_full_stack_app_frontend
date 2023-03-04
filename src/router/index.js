@@ -48,7 +48,7 @@ router.beforeEach((to, from, next) => {
   const { HOME, SIGNIN, SIGNUP, ABOUT } = routesConfig;
   const publicPages = [HOME, SIGNIN, SIGNUP, ABOUT];
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = localStorage.getItem("access_token");
+  const loggedIn = localStorage.getItem("user");
 
   if (authRequired && !loggedIn) {
     next(routesConfig.SIGNIN);

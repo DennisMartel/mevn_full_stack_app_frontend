@@ -1,8 +1,12 @@
 import AuthService from "../../services/auth.service";
+import TokenService from "@/services/token.service";
 
-const initialState = () => ({
+const user = JSON.parse(localStorage.getItem('user'));
+
+const state = () => ({
     signinApiStatus: "",
-    signupApiStatus: ""
+    signupApiStatus: "",
+    user: user ? { status: { loggedIn: true }, user: user } : { status: { loggedIn: false }, user: null }
 });
 
 const getters = {
@@ -18,27 +22,29 @@ const actions = {
     signin({ commit }, payload) {
         return AuthService.signin(payload).then(
             response => {
-                commit("signinApiStatus", "success");
-                return Promise.resolve(response.data);
+                if (response) {
+                    commit("setsigninApiStatus", "success");
+                    TokenService.setUser(response);
+                    return Promise.resolve(response);
+                }
             },
             error => {
-                commit("signinApiStatus", "failed");
+                commit("setsigninApiStatus", "failed");
                 return Promise.reject(error);
             }
         )
         .catch(_error => {
-            debugger;
             return Promise.reject(_error);
         })
     },
     signup({ commit }, payload) {
         return AuthService.signup(payload).then(
             response => {
-                commit("signupApiStatus", "success");
-                return Promise.resolve(response.data);
+                commit("setsignupApiStatus", "success");
+                return Promise.resolve(response);
             },
             error => {
-                commit("signupApiStatus", "failed");
+                commit("setsignupApiStatus", "failed");
                 return Promise.reject(error);
             }
         )
@@ -46,8 +52,8 @@ const actions = {
             return Promise.reject(_error);
         })
     },
-    refreshToken({ commit }, token) {
-        commit("refreshToken", token);
+    refreshToken({ commit }, accessToken) {
+        commit('refreshToken', accessToken);
     },
     logout({ commit }) {
         AuthService.logout();
@@ -56,17 +62,21 @@ const actions = {
 };
 
 const mutations = {
-    setSigninApiStatus(state, payload) {
+    setsigninApiStatus(state, payload) {
         state.signinApiStatus = payload;
     },
-    setSignupApiStatus(state, payload) {
+    setsignupApiStatus(state, payload) {
         state.signupApiStatus = payload;
+    },
+    refreshToken(state, accessToken) {
+        state.status.loggedIn = true;
+        state.user = { ...state.user, accessToken: accessToken };
     }
 };
 
 export default {
     namespaced: true,
-    initialState,
+    state,
     getters,
     actions,
     mutations

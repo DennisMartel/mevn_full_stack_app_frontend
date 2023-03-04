@@ -75,16 +75,16 @@ export default {
             const payload = {
                 email: this.email,
                 password: this.password
-            }
-
+            };
+            
             if (this.$refs.signinForm.validate()) {
-                this.signin(payload);
+                await this.signin(payload);
 
                 if (this.getSigninApiStatus == "success") {
                     this.$router.push({ name: "home" });
-                } else {
-                    
-                }
+                } else if (this.getSigninApiStatus == "failed") {
+                    this.$router.push({ name: "PageNotfound"});
+                } 
             }
         }
     }
