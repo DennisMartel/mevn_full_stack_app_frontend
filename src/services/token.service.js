@@ -1,30 +1,43 @@
+import {
+    getCookie,
+    setCookie,
+    destroyCookie
+} from "../utils/cookiesUtils";
+
 class TokenService {
     getLocalRefreshToken() {
-        const user = JSON.parse(localStorage.getItem("user"));
-        return user?.refreshToken;
+        return getCookie("access_token");
     }
 
     getLocalAccessToken() {
-        const user = JSON.parse(localStorage.getItem("user"));
-        return user?.accessToken;
+        return getCookie("access_token");
     }
 
     updateLocalAccessToken(token) {
-        let user = JSON.parse(localStorage.getItem("user"));
-        user.accessToken = token;
-        localStorage.setItem("user", JSON.stringify(user));
+        setCookie("access_token", token);
     }
 
-    getUser() {
-        return JSON.parse(localStorage.getItem("user"));
+    getTokenAccess() {
+        return getCookie("access_token");
     }
 
-    setUser(payload) {
-        localStorage.setItem("user", JSON.stringify(payload));
+    setTokenAccess(token) {
+        setCookie("access_token", token);
     }
 
-    removeUser() {
-        localStorage.removeItem("user");
+    removeTokenAccess() {
+        destroyCookie("access_token");
+    }
+
+    getLocalUserInfo() {
+        return getCookie("user_info");
+    }
+
+    setLocalUserInfo(userInfo) {
+        setCookie("user_info", userInfo);
+    }
+    removeTokenUserInfo() {
+        destroyCookie("user_info");
     }
 }
 

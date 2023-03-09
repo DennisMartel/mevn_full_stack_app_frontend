@@ -1,5 +1,6 @@
 import axios from "axios";
 import TokenService from "./token.service";
+import { destroyCookie } from "@/utils/cookiesUtils";
 const URL = "/api/auth";
 
 class AuthService {
@@ -17,18 +18,19 @@ class AuthService {
     }
 
     async logout() {
-        const response = await axios.post(`${URL}/logout`);
-        return response.data;
+        // const response = await axios.post(`${URL}/logout`);
+        // return response.data;
+        destroyCookie('access_token');
+        destroyCookie('userInfo');
     }
 
-    async refreshToken() {
+    async refreshToken(payload) {
         const response = await axios.post(`${URL}/refresh-token`, {
-            refreshToken: TokenService.getLocalRefreshToken()
+            refreshToken: payload,
+            userId: TokenService.getLocalUserInfo()
         });
-
-        const { token } = response.data;
         
-        return token.user_token
+        return response
     }
 }
 

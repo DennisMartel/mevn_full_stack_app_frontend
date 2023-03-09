@@ -6,38 +6,38 @@ const setupInterceptor = (store) => {
     AxiosInstace.interceptors.request.use(
         config => {
             const token = TokenService.getLocalAccessToken();
-            if (token) config.headers["Bearer"] = token;
+            if (token) config.headers["x-access-token"] = `${token}`;
             return config;
         },
-        error => {
-            return Promise.reject(error);
-        }
-    )
+        error => Promise.reject(error)
+    );
 
     AxiosInstace.interceptors.response.use(
-        res => {
-            return res;
+        response => {
+            return response;
         },
-        async err => {
-            const originalConfig = err.config;
+        async error => {
+            const originalRequest = error.config;
 
-            if (originalConfig.url !== "/auth/signin" && err.response) {
-                // Access token was expired
-                if (err.response.status == 401 && !originalConfig._retry) {
-                    originalConfig._retry = true;
+            if (error.response.status == 401) {
+                try {
+                    const refreshToken = TokenService.getLocalRefreshToken();
+                    const userId = TokenService.getLocalUserInfo();
 
-                    try {
-                        const token = await AuthService.refreshToken();
-
-                        store.dispatch("auth/refreshToken", token);
-                        TokenService.updateLocalAccessToken(token);
-
-                        return AxiosInstace(originalConfig);
-                    } catch (_error) {
-                        return Promise.reject(_error);
+                    const response = await AuthService.refreshToken(refreshToken, userId);
+                    
+                    if (response && response.status == 200) {
+                        TokenService.updateLocalAccessToken(response.data.accessToken);
+                        const authorization = `${TokenService.getLocalAccessToken()}`;
+                        AxiosInstace.defaults.headers.common["x-access-token"] = authorization;
+                        store.dispatch("auth/refreshToken", response.data.accessToken);
+                        return AxiosInstace(originalRequest);
                     }
+                } catch (_error) {
+                    return Promise.reject(_error);
                 }
             }
+
         }
     )
 }

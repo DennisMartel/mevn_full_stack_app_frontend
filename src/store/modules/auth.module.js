@@ -15,7 +15,8 @@ const getters = {
     },
     getSignupApiStatus(state) {
         return state.signupApiStatus;
-    }
+    },
+
 };
 
 const actions = {
@@ -23,8 +24,10 @@ const actions = {
         return AuthService.signin(payload).then(
             response => {
                 if (response) {
+                    const { _id, accessToken } = response;
+                    TokenService.setTokenAccess(accessToken);
+                    TokenService.setLocalUserInfo(_id);
                     commit("setsigninApiStatus", "success");
-                    TokenService.setUser(response);
                     return Promise.resolve(response);
                 }
             },
@@ -68,9 +71,13 @@ const mutations = {
     setsignupApiStatus(state, payload) {
         state.signupApiStatus = payload;
     },
+    logout(state) {
+        state.status.loggedIn = false;
+        state.user = null;
+    },
     refreshToken(state, accessToken) {
-        state.status.loggedIn = true;
-        state.user = { ...state.user, accessToken: accessToken };
+        state.user.status.loggedIn = true;
+        state.user.user = { ...state.user, accessToken: accessToken };
     }
 };
 

@@ -1,9 +1,10 @@
 import axios from "axios";
+import AxiosInstance from "@/utils/AxiosInstanceUtils";
 const URL = "/api/posts";
 
 class PostService {
     async getPosts() {
-        const res = await axios.get(URL);
+        const res = await AxiosInstance.get("/posts");
         return res.data.posts;
     }
 

@@ -9,12 +9,13 @@
   export default {
     methods: {
       logOut() {
-        this.$store.dispatch("auth/logout");
+        store.dispatch("auth/logout");
         this.$router.push(routesConfig.SIGNIN);
       }
     },
     mounted() {
       EventBus.on("logout", () => {
+        debugger;
         this.logOut();
       })
     },
